@@ -1,0 +1,14 @@
+{
+  "name": "securepush-cli",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "dependencies": {
+    "commander": "*",
+    "@clack/prompts": "*",
+    "simple-git": "*",
+    "diff": "*",
+    "chalk": "*",
+    "js-yaml": "*",
+    "dotenv": "*"
+  }
+}

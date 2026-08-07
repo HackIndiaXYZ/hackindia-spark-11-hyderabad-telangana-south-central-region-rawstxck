@@ -1,14 +1,32 @@
 {
-  "name": "securepush-cli",
-  "version": "1.0.0",
-  "main": "src/index.ts",
+  "name": "securepush",
+  "version": "0.1.0",
+  "description": "Git pre-push hook for AI-written code — verifies AI-agent-generated diffs before they leave your machine.",
+  "type": "commonjs",
+  "bin": {
+    "securepush": "./src/index.ts"
+  },
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
   "dependencies": {
-    "commander": "*",
-    "@clack/prompts": "*",
-    "simple-git": "*",
-    "diff": "*",
-    "chalk": "*",
-    "js-yaml": "*",
-    "dotenv": "*"
+    "@cascadeflow/core": "^1.1.0",
+    "@clack/prompts": "^0.7.0",
+    "@vectorize-io/hindsight-client": "^0.8.6",
+    "chalk": "^4.1.2",
+    "commander": "^12.0.0",
+    "diff": "^5.2.0",
+    "dotenv": "^16.4.5",
+    "js-yaml": "^4.1.0",
+    "open": "^11.0.0",
+    "simple-git": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.12.7",
+    "@types/open": "^6.1.0",
+    "tsx": "^4.7.2",
+    "typescript": "^5.4.5"
   }
 }

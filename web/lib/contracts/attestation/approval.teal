@@ -1,0 +1,42 @@
+#pragma version 8
+
+// Check if this is an app creation
+txn ApplicationID
+int 0
+==
+bnz creation
+
+// Check if this is a NoOp call
+txn OnCompletion
+int NoOp
+==
+bnz handle_noop
+
+// Reject any other calls (OptIn, CloseOut, Update, Delete)
+int 0
+return
+
+creation:
+int 1
+return
+
+handle_noop:
+// We expect the first argument to be "attest"
+txna ApplicationArgs 0
+byte "attest"
+==
+bnz do_attest
+
+err
+
+do_attest:
+// Args:
+// 1: scan_hash (bytes32) - Used as box name
+// 2: passed (bool represented as 1 byte) - Used as box value
+
+txna ApplicationArgs 1
+txna ApplicationArgs 2
+box_put
+
+int 1
+return

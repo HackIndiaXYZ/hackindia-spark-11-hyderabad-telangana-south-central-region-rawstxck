@@ -1,0 +1,88 @@
+.shell {
+  width: min(1020px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 32px 0 64px;
+}
+
+.pageHead {
+  padding: 8px 0 32px;
+  border-bottom: 1px solid rgba(242, 240, 234, 0.08);
+  margin-bottom: 32px;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.titleWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.breadcrumb {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.breadcrumb a {
+  text-decoration: none;
+  color: var(--text-muted);
+}
+
+.breadcrumb a:hover {
+  color: var(--text-primary);
+}
+
+.repoName {
+  font-family: var(--font-display);
+  font: 700 clamp(24px, 3.5vw, 32px)/1.08 var(--font-display);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.healthBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.healthScore {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.tabNav {
+  display: flex;
+  gap: 24px;
+}
+
+.tab {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text-muted);
+  text-decoration: none;
+  padding-bottom: 8px;
+  border-bottom: 2px solid transparent;
+  transition: color 150ms ease, border-color 150ms ease;
+}
+
+.tab:hover {
+  color: var(--text-primary);
+}
+
+.tabActive {
+  color: var(--text-primary);
+  border-bottom-color: var(--text-primary);
+}

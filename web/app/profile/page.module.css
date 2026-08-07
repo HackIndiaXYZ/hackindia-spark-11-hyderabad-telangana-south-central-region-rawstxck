@@ -1,0 +1,94 @@
+.shell {
+  width: min(800px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 32px 0 64px;
+}
+
+.pageHead {
+  padding: 8px 0 40px;
+}
+
+.title {
+  font-family: var(--font-display);
+  font: 700 clamp(30px, 4.5vw, 42px)/1.08 var(--font-display);
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+
+.section {
+  margin-bottom: 48px;
+}
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 24px 0;
+  letter-spacing: -0.02em;
+}
+
+
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.fieldGroup:last-child {
+  margin-bottom: 0;
+}
+
+.label {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.value {
+  font-size: 16px;
+  color: var(--text-primary);
+}
+
+.sessionList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sessionItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-radius: 8px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+}
+
+.sessionInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sessionLabel {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.sessionMeta {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+
+
+
+
+

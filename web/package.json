@@ -8,10 +8,18 @@
     "start": "next start"
   },
   "dependencies": {
+    "@perawallet/connect": "^1.6.0",
+    "@supabase/ssr": "^0.12.4",
+    "@supabase/supabase-js": "latest",
+    "@vectorize-io/hindsight-client": "^0.8.6",
+    "algosdk": "^3.6.0",
     "next": "latest",
     "react": "latest",
-    "react-dom": "latest",
-    "@supabase/supabase-js": "latest",
-    "tailwindcss": "latest"
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "26.1.2",
+    "@types/react": "19.2.18",
+    "typescript": "7.0.2"
   }
 }

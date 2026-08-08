@@ -1,94 +1,238 @@
 .shell {
-  width: min(800px, calc(100% - 32px));
+  width: min(1020px, calc(100% - 32px));
   margin: 0 auto;
   padding: 32px 0 64px;
 }
 
-.pageHead {
-  padding: 8px 0 40px;
+.accountChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px 6px 6px;
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 13px;
+  color: var(--text-muted);
 }
 
-.title {
+.avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--surface-soft);
+  display: grid;
+  place-items: center;
+  font: 600 11px var(--font-mono);
+  color: var(--text-primary);
+}
+
+.pageHead {
+  display: grid;
+  gap: 12px;
+  padding: 8px 0 40px;
+  max-width: 60ch;
+}
+
+.pageHead h1 {
+  margin: 0;
   font-family: var(--font-display);
   font: 700 clamp(30px, 4.5vw, 42px)/1.08 var(--font-display);
   letter-spacing: -0.03em;
+}
+
+.lead {
   margin: 0;
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1.6;
 }
 
-.section {
-  margin-bottom: 48px;
-}
-
-.sectionTitle {
-  font-family: var(--font-display);
-  font-size: 20px;
+.lead b {
+  color: var(--text-primary);
   font-weight: 600;
+}
+
+.planGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.planCard {
+  display: grid;
+  gap: 18px;
+  padding: 24px 20px;
+  border-radius: 16px;
+  background: var(--surface);
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.planCard:hover {
+  background: var(--surface-raised);
+  transform: translateY(-2px);
+}
+
+.planCardCurrent {
+  background: var(--surface-raised);
+  box-shadow: inset 0 0 0 1px rgba(62, 207, 142, 0.4);
+}
+
+.planNameRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 8px;
+}
+
+.planName {
+  font-family: var(--font-display);
+  font: 700 20px/1.1 var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+.currentBadge {
+  font-size: 11px;
+  color: var(--accepted);
+  background: rgba(62, 207, 142, 0.12);
+  padding: 3px 9px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.price {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-faint);
+}
+
+.price b {
+  font-size: 22px;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.planFeatures {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 9px;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.planFeatures li {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.planFeatures li::before {
+  content: "—";
+  color: var(--text-faint);
+  flex-shrink: 0;
+}
+
+.button {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(242, 240, 234, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  font: 600 12px/1 var(--font-mono);
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease;
+}
+
+.button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(242, 240, 234, 0.28);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
+.buttonCurrent {
+  background: transparent;
+  color: var(--text-faint);
+  cursor: default;
+}
+
+.buttonCurrent:hover {
+  background: transparent;
+  border-color: rgba(242, 240, 234, 0.14);
+}
+
+.notice {
+  margin-top: 28px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.notice b {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.profileGrid {
+  display: grid;
+  gap: 24px;
+}
+
+.profileCard {
+  background: rgba(255, 255, 255, 0.035);
+  padding: 32px;
+  border-radius: 24px;
+}
+
+.profileCard h2 {
+  font-family: var(--font-display);
+  font-size: 24px;
   margin: 0 0 24px 0;
   letter-spacing: -0.02em;
 }
 
-
-
-.fieldGroup {
+.identityRow {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 24px;
+  align-items: center;
+  gap: 16px;
 }
 
-.fieldGroup:last-child {
-  margin-bottom: 0;
-}
-
-.label {
-  font-size: 13px;
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.value {
-  font-size: 16px;
-  color: var(--text-primary);
-}
-
-.sessionList {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.sessionItem {
+.footer {
+  margin-top: 60px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(242, 240, 234, 0.08);
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 16px;
-  border-radius: 8px;
-  background: var(--surface-soft);
-  border: 1px solid var(--border);
-}
-
-.sessionInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.sessionLabel {
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.sessionMeta {
+  gap: 12px;
+  flex-wrap: wrap;
+  color: var(--text-faint);
   font-size: 13px;
-  color: var(--text-muted);
   font-family: var(--font-mono);
 }
 
+@media (max-width: 860px) {
+  .planGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
 
-
-
-
-
+@media (max-width: 560px) {
+  .planGrid {
+    grid-template-columns: 1fr;
+  }
+}

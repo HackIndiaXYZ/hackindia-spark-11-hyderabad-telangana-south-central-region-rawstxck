@@ -126,6 +126,82 @@
 }
 
 
+.planCard {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px 20px;
+  border-radius: 16px;
+  background: var(--surface);
+  transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+.planCard:hover { 
+  background: var(--surface-raised); 
+  transform: translateY(-2px); 
+}
+
+.planCard.current,
+.planCard:has(.connectedBtn) {
+  background: var(--surface-raised);
+  box-shadow: inset 0 0 0 1px rgba(62, 207, 142, 0.4);
+}
+
+.currentBadge,
+.planCard:has(.connectedBtn) .currentBadge {
+  font-size: 11px;
+  color: var(--accepted);
+  background: rgba(62, 207, 142, 0.12);
+  padding: 3px 9px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.web3Badge {
+  display: none;
+}
+.planCard:has(.connectedBtn) .web3Badge {
+  display: inline-block;
+}
+
+/* Button overrides for this page to match design precisely */
+.planBtn {
+  margin-top: auto;
+  width: 100%;
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 42px; padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(242, 240, 234, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  font: 600 12px/1 var(--font-mono);
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease;
+}
+
+.planBtn:hover { 
+  background: rgba(255, 255, 255, 0.08); 
+  border-color: rgba(242, 240, 234, 0.28); 
+}
+
+.planBtn:focus-visible { 
+  outline: 2px solid var(--text-primary); 
+  outline-offset: 2px; 
+}
+
+.planBtn.currentBtn { 
+  background: transparent; 
+  color: var(--text-faint); 
+  cursor: default; 
+}
+
+.planBtn.currentBtn:hover { 
+  background: transparent; 
+  border-color: rgba(242, 240, 234, 0.14); 
+}
+
 @media (max-width: 860px) {
   .planGrid { grid-template-columns: 1fr 1fr; }
 }

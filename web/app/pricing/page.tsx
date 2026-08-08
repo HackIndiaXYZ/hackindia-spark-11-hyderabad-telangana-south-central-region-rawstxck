@@ -1,5 +1,7 @@
 import GlobalNav from '@/components/GlobalNav';
 import Link from 'next/link';
+import Web3PricingButton from '@/components/Web3PricingButton';
+import ByoKeyButton from '@/components/ByoKeyButton';
 import styles from './page.module.css';
 
 export const metadata = {
@@ -12,7 +14,7 @@ export default function PricingPage() {
       <GlobalNav />
       <main className={styles.shell}>
         <header className={styles.pageHead}>
-          <h1>Pricing</h1>
+          <h1>Account & plan</h1>
           <p className={styles.lead}>
             This controls the <b>hosted</b> option only. BYO-key and local (Ollama) modes never need a plan —
             the CLI runs the same either way, this just decides whether SecurePush hosts the AI calls and memory for you.
@@ -20,9 +22,10 @@ export default function PricingPage() {
         </header>
 
         <section className={styles.planGrid} aria-label="Plans">
-          <div className="card">
+          <div className={`${styles.planCard} ${styles.current}`}>
             <div className={styles.planNameRow}>
               <div className={styles.planName}>Free</div>
+              <span className={styles.currentBadge}>CURRENT</span>
             </div>
             <div className={styles.price}><b>$0</b> /mo</div>
             <ul className={styles.planFeatures}>
@@ -30,24 +33,24 @@ export default function PricingPage() {
               <li>Groq + Gemini fast tier</li>
               <li>Repo memory, 30-day history</li>
             </ul>
-            <Link href="/login" className="button" style={{ marginTop: 'auto' }}>Get started for free</Link>
+            <button className={`${styles.planBtn} ${styles.currentBtn}`} disabled>Current plan</button>
           </div>
 
-          <div className="card" style={{ borderColor: 'var(--brand)' }}>
+          <div className={styles.planCard}>
             <div className={styles.planNameRow}>
               <div className={styles.planName}>Pro</div>
             </div>
-            <div className={styles.price}><b>$8</b> /mo per repo</div>
+            <div className={styles.price}><b>$10</b> /mo</div>
             <ul className={styles.planFeatures}>
               <li>Private repos</li>
               <li>Claude escalation tier</li>
               <li>Full history, no retention limit</li>
               <li>Priority scan queue</li>
             </ul>
-            <Link href="/login" className="button button-primary" style={{ marginTop: 'auto' }}>Select Pro</Link>
+            <Link href="/login" className={styles.planBtn}>Select Pro</Link>
           </div>
 
-          <div className="card">
+          <div className={styles.planCard}>
             <div className={styles.planNameRow}>
               <div className={styles.planName}>BYO-key</div>
             </div>
@@ -57,20 +60,22 @@ export default function PricingPage() {
               <li>No hosted inference cost</li>
               <li>Memory still hosted</li>
             </ul>
-            <Link href="/login" className="button" style={{ marginTop: 'auto' }}>Select BYO-key</Link>
+            <ByoKeyButton className={styles.planBtn} />
           </div>
 
-          <div className="card">
+          <div className={styles.planCard}>
             <div className={styles.planNameRow}>
-              <div className={styles.planName}>Local</div>
+              <div className={styles.planName}>Web3 Pay-per-scan</div>
+              <span className={`${styles.currentBadge} ${styles.web3Badge}`}>CONNECTED</span>
             </div>
-            <div className={styles.price}><b>$0</b> /mo</div>
+            <div className={styles.price}><b>$0.15</b> /scan</div>
             <ul className={styles.planFeatures}>
-              <li>Fully local via Ollama</li>
-              <li>Zero code leaves your machine</li>
-              <li>No login required at all</li>
+              <li>Pay seamlessly with Pera Wallet</li>
+              <li>Uses Algorand TestNet</li>
+              <li>No subscription required</li>
+              <li>Perfect for occasional scans</li>
             </ul>
-            <a href="https://github.com/securepush/securepush#local-mode" className="button" style={{ marginTop: 'auto' }}>Use local mode</a>
+            <Web3PricingButton className={styles.planBtn} />
           </div>
         </section>
 

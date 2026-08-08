@@ -3,14 +3,17 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const supabase = await createClient();
+    const supabaseAdmin = require('@supabase/supabase-js').createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
     const { id } = await params;
 
     if (!id) {
       return NextResponse.json({ error: "id is required" }, { status: 400 });
     }
 
-    const { data: session } = await supabase
+    const { data: session } = await supabaseAdmin
       .from("payment_sessions")
       .select("status, amount_microalgos, receiver_address")
       .eq("id", id)

@@ -23,7 +23,7 @@ export async function applyAcceptedFixes(
   for (const [file, fileDecisions] of byFile) {
     const fullPath = path.join(repoRoot, file);
     const original = await fs.readFile(fullPath, "utf-8");
-    const lines = original.split("\n");
+    const lines = original.split(/\r?\n/);
 
     // Apply by exact line number (finding.line is 1-indexed from the diff), not
     // string matching — originalLine text is not guaranteed unique in the file,
@@ -33,7 +33,7 @@ export async function applyAcceptedFixes(
     // touching it, in case an earlier accepted fix on the same file shifted things.
     for (const { finding } of fileDecisions) {
       const idx = finding.line - 1;
-      if (idx < 0 || idx >= lines.length || lines[idx] !== finding.originalLine) {
+      if (idx < 0 || idx >= lines.length || lines[idx].trim() !== finding.originalLine.trim()) {
         console.log(
           chalk.red(
             `  ✗ ${file}:${finding.line} — line content changed since scan, skipping this fix (re-run to rescan).`

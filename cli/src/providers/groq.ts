@@ -8,10 +8,39 @@ const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 const GROQ_MODEL = "llama-3.1-8b-instant";
 
 export async function reviewWithGroq(files: FileDiff[], pastPatterns: string[] = []): Promise<Finding[]> {
-  const apiKey = process.env.GROQ_API_KEY;
+  let apiKey = process.env.GROQ_API_KEY;
 
   if (!apiKey) {
-    console.log(chalk.red("GROQ_API_KEY not set. Scan could not complete — push blocked."));
+    console.log(chalk.yellow("Local GROQ_API_KEY not set. Checking SecurePush Cloud for a saved BYO-key..."));
+    
+    // Call backend
+    const DASHBOARD_URL = process.env.SECUREPUSH_DASHBOARD_URL || "http://localhost:3000";
+    
+    try {
+      // Need bank_id to identify repo/user. We can read it from config.
+      const { loadConfig } = require("../config/schema");
+      const simpleGit = require("simple-git");
+      const repoRoot = (await simpleGit().revparse(["--show-toplevel"])).trim();
+      const config = loadConfig(repoRoot);
+
+      const byoRes = await fetch(`${DASHBOARD_URL}/api/byo-scan`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bank_id: config.bank_id, files, pastPatterns })
+      });
+
+      if (byoRes.ok) {
+        const resData = await byoRes.json() as { findings: Finding[] };
+        return resData.findings;
+      } else {
+        const errText = await byoRes.text();
+        console.log(chalk.red(`Cloud BYO-scan failed: ${errText}`));
+      }
+    } catch (e: any) {
+      console.log(chalk.red(`Failed to reach SecurePush Cloud for BYO-key scan: ${e.message}`));
+    }
+
+    console.log(chalk.red("Scan could not complete — push blocked."));
     process.exit(1);
   }
 

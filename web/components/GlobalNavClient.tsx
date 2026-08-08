@@ -23,8 +23,8 @@ export default function GlobalNavClient({ user }: { user: User | null }) {
   const navLinks = [
     { name: 'Home', href: '/' },
     { name: 'Dashboard', href: user ? '/dashboard' : '/login?redirect=/dashboard' },
+    { name: 'Memory', href: user ? '/dashboard/securepush-demo' : '/login?redirect=/dashboard/securepush-demo' },
     { name: 'Pricing', href: '/pricing' },
-    { name: 'About', href: '/about' },
   ];
 
   const username = user?.user_metadata?.user_name || user?.email?.split('@')[0] || 'User';
@@ -36,48 +36,50 @@ export default function GlobalNavClient({ user }: { user: User | null }) {
         <span>SecurePush</span>
       </Link>
 
-      <nav aria-label="Primary navigation">
-        <ul className="nav-list">
-          {navLinks.map((link) => {
-            // Precise active matching
-            const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
-            return (
-              <li key={link.name}>
-                <Link href={link.href} className={isActive ? 'active-link' : ''}>
-                  {link.name}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+      <div className="nav-and-auth">
+        <nav aria-label="Primary navigation">
+          <ul className="nav-list">
+            {navLinks.map((link) => {
+              // Precise active matching
+              const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
+              return (
+                <li key={link.name}>
+                  <Link href={link.href} className={isActive ? 'active-link' : ''}>
+                    {link.name}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
 
-      <div className="auth-slot">
-        {!user ? (
-          <Link href="/login" className="button nav-cta">
-            Sign in
-          </Link>
-        ) : (
-          <div className="avatar-dropdown" ref={dropdownRef}>
-            <button 
-              className="avatar-button" 
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              aria-expanded={dropdownOpen}
-            >
-              <div className="avatar">{username.charAt(0).toUpperCase()}</div>
-              <span>{username}</span>
-              <span className="dropdown-caret">▾</span>
-            </button>
-            {dropdownOpen && (
-              <div className="dropdown-menu">
-                <Link href="/profile" onClick={() => setDropdownOpen(false)}>Profile</Link>
-                <form action="/auth/signout" method="POST">
-                  <button type="submit" className="signout-button">Sign out</button>
-                </form>
-              </div>
-            )}
-          </div>
-        )}
+        <div className="auth-slot">
+          {!user ? (
+            <Link href="/login" className="button nav-cta">
+              Sign in
+            </Link>
+          ) : (
+            <div className="avatar-dropdown" ref={dropdownRef}>
+              <button 
+                className="avatar-button" 
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                aria-expanded={dropdownOpen}
+              >
+                <div className="avatar">{username.charAt(0).toUpperCase()}</div>
+                <span>{username}</span>
+                <span className="dropdown-caret">▾</span>
+              </button>
+              {dropdownOpen && (
+                <div className="dropdown-menu">
+                  <Link href="/profile" onClick={() => setDropdownOpen(false)}>Profile</Link>
+                  <form action="/auth/signout" method="POST">
+                    <button type="submit" className="signout-button">Sign out</button>
+                  </form>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       <style jsx>{`
@@ -88,6 +90,14 @@ export default function GlobalNavClient({ user }: { user: User | null }) {
           align-items: center;
           padding: 22px 0;
           border-bottom: 1px solid rgba(242, 240, 234, 0.08);
+          width: min(1120px, calc(100% - 32px));
+          margin: 0 auto;
+        }
+
+        .nav-and-auth {
+          display: flex;
+          align-items: center;
+          gap: 32px;
         }
 
         .brand {

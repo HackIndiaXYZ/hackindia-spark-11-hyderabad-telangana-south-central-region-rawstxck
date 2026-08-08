@@ -12,6 +12,7 @@ export default function LoginClient() {
   const sessionId = searchParams.get('session');
   const redirect = searchParams.get('redirect');
   const error = searchParams.get('error');
+  const requiresWallet = searchParams.get('requires_wallet') === 'true';
 
   const [isLinking, setIsLinking] = useState(false);
   const [linkedUser, setLinkedUser] = useState<string | null>(null);
@@ -38,7 +39,12 @@ export default function LoginClient() {
           
         // If there was an explicit redirect (e.g. they clicked Dashboard while logged out), go there.
         // If they just ran `securepush login`, they stay on this screen which tells them to close the tab.
-        if (redirect) {
+        // If they ran `securepush init` with cloud provider, we need to prompt for a wallet connection.
+        if (requiresWallet) {
+          setTimeout(() => {
+            router.push('/profile?prompt_wallet=1');
+          }, 1500);
+        } else if (redirect) {
           setTimeout(() => {
             router.push(redirect);
           }, 1500);
@@ -57,7 +63,10 @@ export default function LoginClient() {
     const callbackUrl = new URL(window.location.origin + '/auth/callback');
     
     if (redirect) callbackUrl.searchParams.set('next', redirect);
-    else if (sessionId) callbackUrl.searchParams.set('next', `/login?session=${sessionId}`); // Return here to show the linking UI!
+    else if (sessionId) {
+      const nextUrl = `/login?session=${sessionId}${requiresWallet ? '&requires_wallet=true' : ''}`;
+      callbackUrl.searchParams.set('next', nextUrl);
+    }
     else callbackUrl.searchParams.set('next', '/dashboard');
 
     if (sessionId) {
@@ -107,6 +116,14 @@ export default function LoginClient() {
               Sign in with GitHub
             </button>
 
+            <div className="divider">or</div>
+
+            <form className="field-group" id="emailForm" onSubmit={(e) => e.preventDefault()}>
+              <input className="field" type="email" placeholder="Email" required />
+              <input className="field" type="password" placeholder="Password" required />
+              <button className="button" type="submit">Sign in with email</button>
+            </form>
+
             <p className="fine-print" style={{ marginTop: '16px' }}>
               Only need to run SecurePush locally or with your own API key? <b>No login required</b> — this is only for hosted memory/history and account access.
             </p>
@@ -116,8 +133,8 @@ export default function LoginClient() {
             <div className="spinner" role="status" aria-label="Linking"></div>
             <h1 style={{ fontSize: '22px' }}>Linking your CLI…</h1>
             <p className="lead">Signed in as <b id="linkedUser" style={{ color: 'var(--text-primary)' }}>{linkedUser}</b>. Your terminal will pick this up automatically — you can close this tab once it confirms.</p>
-            <div className="session-pill" style={{ background: 'var(--surface-soft)', color: 'var(--text-primary)' }}>
-              <span className="dot" style={{ background: 'var(--text-primary)' }}></span> Session linked
+            <div className="session-pill" style={{ background: 'rgba(62,207,142,0.12)', color: 'var(--accepted)' }}>
+              <span className="dot" style={{ background: 'var(--accepted)' }}></span> Session linked
             </div>
             {redirect && (
               <p style={{ marginTop: '16px', color: 'var(--text-muted)' }}>Redirecting...</p>
@@ -193,7 +210,7 @@ export default function LoginClient() {
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background: var(--text-muted);
+          background: var(--proposed);
         }
 
         .button {
@@ -224,6 +241,39 @@ export default function LoginClient() {
 
         .button:focus-visible { outline: 2px solid var(--text-primary); outline-offset: 3px; }
 
+        .divider {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          color: var(--text-faint);
+          font-size: 12px;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+        }
+
+        .divider::before, .divider::after {
+          content: "";
+          flex: 1;
+          height: 1px;
+          background: var(--border);
+        }
+
+        .field-group { display: grid; gap: 10px; text-align: left; }
+
+        .field {
+          width: 100%;
+          padding: 14px 16px;
+          border-radius: 10px;
+          background: var(--surface);
+          border: 1px solid transparent;
+          color: var(--text-primary);
+          font-family: var(--font-body);
+          font-size: 15px;
+        }
+
+        .field:focus { outline: none; border-color: var(--text-faint); }
+        .field::placeholder { color: var(--text-faint); }
+
         .fine-print {
           color: var(--text-faint);
           font-size: 13px;
@@ -246,7 +296,7 @@ export default function LoginClient() {
           height: 28px;
           border-radius: 50%;
           border: 2px solid var(--border);
-          border-top-color: var(--text-primary);
+          border-top-color: var(--accepted);
           animation: spin 800ms linear infinite;
         }
 

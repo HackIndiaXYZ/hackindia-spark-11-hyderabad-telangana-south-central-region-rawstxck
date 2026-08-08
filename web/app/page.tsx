@@ -1,7 +1,8 @@
 
-import GlobalNav from '@/components/GlobalNav';
+
 import Hero from '@/components/Hero';
 import Link from 'next/link';
+import GlobalNav from '@/components/GlobalNav';
 import './page.css';
 
 export const metadata = {
@@ -11,17 +12,8 @@ export const metadata = {
 export default function Home() {
   return (
     <>
-      <div className="page" style={{ paddingTop: '0' }}>
-        <GlobalNav />
-        <nav aria-label="Section navigation" style={{
-          display: 'flex', gap: '18px', padding: '16px 0', borderBottom: '1px solid rgba(242, 240, 234, 0.08)',
-          position: 'sticky', top: 0, background: 'var(--bg)', zIndex: 40, fontSize: '14px', color: 'var(--text-muted)'
-        }}>
-          <Link href="#flow" style={{ textDecoration: 'none' }}>Flow</Link>
-          <Link href="#comparison" style={{ textDecoration: 'none' }}>Comparison</Link>
-          <Link href="#memory" style={{ textDecoration: 'none' }}>Memory</Link>
-        </nav>
-    <main className="page">
+      <GlobalNav />
+      <main className="page" style={{ padding: 0 }}>
       
 
       <Hero />
@@ -355,8 +347,8 @@ export default function Home() {
                 >
               </li>
             </ul>
-            <a className="link-card" href="securepush-history.html"
-              >Open the full history / insights page →</a
+            <Link className="link-card" href="/dashboard/securepush-demo"
+              >Open the full history / insights page →</Link
             >
           </div>
           <aside className="history-snippet">
@@ -381,44 +373,40 @@ export default function Home() {
       </section>
 
       
-      <section id="pricing-preview" style={{ padding: '84px 0', borderTop: '1px solid rgba(242, 240, 234, 0.08)' }}>
-        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-          <h2 style={{ fontSize: '32px', marginBottom: '16px' }}>Pricing that makes sense</h2>
-          <p className="lead" style={{ margin: '0 auto' }}>Choose how you want to run SecurePush.</p>
+      <section id="pricing-preview" className="section">
+        <div className="section-head" style={{ textAlign: 'center', margin: '0 auto 48px', alignItems: 'center', display: 'flex', flexDirection: 'column' }}>
+          <h2>Pricing that makes sense</h2>
+          <p className="lead">Choose how you want to run SecurePush.</p>
         </div>
-        <div style={{ display: 'flex', gap: '24px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <div className="card" style={{ minWidth: '240px' }}>
-            <h3 style={{ fontSize: '20px' }}>Free</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', maxWidth: '1000px', margin: '0 auto' }}>
+          <div className="recent-activity" style={{ padding: '32px' }}>
+            <h3 style={{ fontSize: '20px', margin: 0 }}>Free</h3>
             <p style={{ color: 'var(--text-muted)', margin: '12px 0 24px' }}>Up to 3 repos</p>
-            <div style={{ fontSize: '32px', fontFamily: 'var(--font-mono)' }}>$0</div>
+            <div style={{ fontSize: '42px', fontFamily: 'var(--font-display)', fontWeight: 700, letterSpacing: '-0.04em' }}>$0</div>
           </div>
-          <div className="card" style={{ minWidth: '240px', borderColor: 'var(--brand)' }}>
-            <h3 style={{ fontSize: '20px' }}>Pro</h3>
+          <div className="recent-activity" style={{ padding: '32px', borderColor: 'var(--text-primary)', borderStyle: 'solid', borderWidth: '1px' }}>
+            <h3 style={{ fontSize: '20px', margin: 0 }}>Pro</h3>
             <p style={{ color: 'var(--text-muted)', margin: '12px 0 24px' }}>Unlimited repos</p>
-            <div style={{ fontSize: '32px', fontFamily: 'var(--font-mono)' }}>$15<span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>/mo</span></div>
+            <div style={{ fontSize: '42px', fontFamily: 'var(--font-display)', fontWeight: 700, letterSpacing: '-0.04em' }}>$15<span style={{ fontSize: '16px', color: 'var(--text-muted)', fontWeight: 400 }}>/mo</span></div>
           </div>
-          <div className="card" style={{ minWidth: '240px' }}>
-            <h3 style={{ fontSize: '20px' }}>BYO-key & Local</h3>
+          <div className="recent-activity" style={{ padding: '32px' }}>
+            <h3 style={{ fontSize: '20px', margin: 0 }}>BYO-key & Local</h3>
             <p style={{ color: 'var(--text-muted)', margin: '12px 0 24px' }}>Run it yourself</p>
-            <div style={{ fontSize: '32px', fontFamily: 'var(--font-mono)' }}>Free forever</div>
+            <div style={{ fontSize: '42px', fontFamily: 'var(--font-display)', fontWeight: 700, letterSpacing: '-0.04em' }}>Free forever</div>
           </div>
         </div>
         <div style={{ textAlign: 'center', marginTop: '48px' }}>
-          <a href="/pricing" className="button" style={{ background: 'transparent' }}>View full pricing →</a>
+          <Link href="/pricing" className="button">View full pricing →</Link>
         </div>
       </section>
 
-<footer>
+      <footer>
         <span>~/securepush $ accept a fix, then run the tests</span>
-        <span
-          ><a href="securepush-login.html">Sign in to link your CLI</a></span
-        >
+        <span>
+          <Link href="/login">Sign in to link your CLI</Link>
+        </span>
       </footer>
     </main>
-    </div>
-    
-
-    
     </>
   );
 }

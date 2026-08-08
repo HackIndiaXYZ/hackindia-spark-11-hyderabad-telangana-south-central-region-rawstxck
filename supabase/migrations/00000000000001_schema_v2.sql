@@ -63,6 +63,7 @@ create table if not exists public.cli_sessions (
   linked_at timestamptz,
   last_seen_at timestamptz,
   device_label text,
+  status text not null default 'pending',
   created_at timestamptz not null default now(),
   expires_at timestamptz not null default (now() + interval '10 minutes')
 );

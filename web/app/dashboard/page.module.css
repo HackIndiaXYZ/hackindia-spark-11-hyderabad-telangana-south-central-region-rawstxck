@@ -1,151 +1,250 @@
 .shell {
   width: min(1020px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 32px 0 64px;
+  padding-bottom: 72px;
 }
 
 .pageHead {
-  display: grid;
-  gap: 12px;
-  padding: 8px 0 40px;
-}
-
-.title {
-  font-family: var(--font-display);
-  font: 700 clamp(30px, 4.5vw, 42px)/1.08 var(--font-display);
-  letter-spacing: -0.03em;
-  margin: 0;
-}
-
-.lead {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 16px;
-  line-height: 1.6;
-}
-
-.statsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 48px;
-}
-
-.statCard {
-  background: var(--surface);
-  border-radius: 12px;
-  padding: 20px;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  justify-content: space-between;
+  align-items: end;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 48px 0 32px;
 }
 
-.statLabel {
+.headCopy {
+  max-width: 56ch;
+}
+
+.eyebrow {
+  margin-bottom: 12px;
   color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.05em;
+  font: 500 12px/1.4 var(--font-mono);
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-.statValue {
+.pageHead h1 {
+  margin: 0;
   font-family: var(--font-display);
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--text-primary);
+  font: 700 clamp(32px, 4.5vw, 46px)/1.08 var(--font-display);
+  letter-spacing: -0.03em;
 }
 
-.sectionTitle {
+.lead {
+  margin: 14px 0 0;
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(242, 240, 234, 0.14);
+  background: var(--text-primary);
+  color: var(--bg);
+  font: 600 13px/1 var(--font-mono);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 140ms ease, transform 140ms ease;
+  text-decoration: none;
+}
+
+.action:hover {
+  background: white;
+  transform: translateY(-1px);
+}
+
+/* --- empty state --- */
+.emptyState {
+  display: none;
+  flex-direction: column;
+  align-items: start;
+  gap: 18px;
+  padding: 64px 40px;
+  border-radius: 24px;
+  background: var(--surface);
+  text-align: left;
+}
+
+.emptyState.active {
+  display: flex;
+}
+
+.emptyMark {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--surface-raised);
+  display: grid;
+  place-items: center;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 15px;
+}
+
+.emptyState h2 {
+  margin: 0;
   font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 600;
-  margin: 0 0 20px 0;
+  font: 700 24px/1.2 var(--font-display);
   letter-spacing: -0.02em;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 32px;
+.emptyState p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.7;
+  max-width: 52ch;
 }
 
-@media (min-width: 800px) {
-  .grid {
-    grid-template-columns: 2fr 1fr;
-  }
+.emptyCommand {
+  margin-top: 4px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--accepted);
+  font: 500 13px/1.5 var(--font-mono);
 }
 
-.repoGrid {
-  display: grid;
-  gap: 16px;
+.emptyCommand span {
+  color: var(--text-faint);
+}
+
+/* --- populated state --- */
+.repoList {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.repoList.active {
+  display: flex;
 }
 
 .repoCard {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 22px 24px;
+  border-radius: 16px;
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
+  transition: background 160ms ease, transform 160ms ease;
   text-decoration: none;
   color: inherit;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  box-shadow: var(--shadow-sm);
 }
 
 .repoCard:hover {
   background: var(--surface-raised);
-  border-color: var(--border-hover);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
-.repoHeader {
+.repoMain {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.repoNameRow {
+  display: flex;
   align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .repoName {
   font-family: var(--font-display);
+  font: 700 18px/1.2 var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.green {
+  background: var(--accepted);
+}
+.amber {
+  background: var(--proposed);
+}
+.red {
+  background: var(--removed);
+}
+
+.repoMeta {
+  color: var(--text-faint);
+  font-size: 12.5px;
+  font-family: var(--font-mono);
+}
+.repoMeta b {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.repoSide {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.repoStat {
+  text-align: right;
+}
+.repoStat .num {
+  font-family: var(--font-mono);
   font-size: 18px;
   font-weight: 600;
+  color: var(--text-primary);
+}
+.repoStat .label {
+  font-size: 11px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
-.repoStatus {
+.chevron {
+  color: var(--text-faint);
   font-family: var(--font-mono);
-  font-size: 12px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  background: var(--surface-soft);
+  font-size: 18px;
+}
+
+.repoCard:hover .chevron {
   color: var(--text-primary);
 }
 
-.repoMetrics {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-.metric b {
-  color: var(--text-primary);
-  font-family: var(--font-mono);
-  display: block;
-  margin-top: 4px;
-  font-size: 15px;
-}
-
-.sidePanel {
+.footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(242, 240, 234, 0.08);
   display: flex;
-  flex-direction: column;
-  gap: 32px;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  color: var(--text-faint);
+  font-size: 13px;
+  font-family: var(--font-mono);
 }
 
-.panelBox {
-  background: var(--surface);
-  border-radius: 12px;
-  padding: 20px;
+@media (max-width: 640px) {
+  .pageHead {
+    align-items: start;
+  }
+  .repoCard {
+    grid-template-columns: 1fr;
+  }
+  .repoSide {
+    justify-content: space-between;
+  }
 }

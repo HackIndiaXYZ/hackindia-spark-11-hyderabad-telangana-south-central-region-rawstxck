@@ -3,17 +3,15 @@
 import { PeraWalletConnect } from '@perawallet/connect';
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { getPeraWallet } from '@/lib/pera';
 
-const peraWallet = new PeraWalletConnect({
-  chainId: 416002, // Algorand TestNet
-  shouldShowSignTxnToast: false
-});
-
-export default function WalletConnect({ initialAddress }: { initialAddress: string | null }) {
+export default function WalletConnect({ initialAddress, autoPrompt = false }: { initialAddress: string | null; autoPrompt?: boolean }) {
   const [accountAddress, setAccountAddress] = useState<string | null>(initialAddress);
   const [isConnecting, setIsConnecting] = useState(false);
 
   useEffect(() => {
+    const peraWallet = getPeraWallet();
+    if (!peraWallet) return;
     // Reconnect to the session when the component is mounted
     peraWallet
       .reconnectSession()
@@ -24,10 +22,15 @@ export default function WalletConnect({ initialAddress }: { initialAddress: stri
         });
         if (accounts.length) {
           setAccountAddress(accounts[0]);
+          if (accounts[0] !== initialAddress) {
+            saveWalletToProfile(accounts[0]);
+          }
+        } else if (autoPrompt) {
+          setTimeout(() => handleConnect(), 500);
         }
       })
       .catch((e) => console.log(e));
-  }, []);
+  }, [autoPrompt]);
 
   const saveWalletToProfile = async (address: string | null) => {
     await fetch("/api/wallet/link", {
@@ -38,6 +41,8 @@ export default function WalletConnect({ initialAddress }: { initialAddress: stri
   };
 
   const handleConnect = () => {
+    const peraWallet = getPeraWallet();
+    if (!peraWallet) return;
     setIsConnecting(true);
     peraWallet
       .connect()
@@ -61,6 +66,8 @@ export default function WalletConnect({ initialAddress }: { initialAddress: stri
   };
 
   const handleDisconnect = () => {
+    const peraWallet = getPeraWallet();
+    if (!peraWallet) return;
     peraWallet.disconnect();
     setAccountAddress(null);
     saveWalletToProfile(null);
@@ -76,9 +83,15 @@ export default function WalletConnect({ initialAddress }: { initialAddress: stri
       
       {accountAddress ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '0.9em', fontFamily: 'monospace', color: 'var(--text-primary)' }}>
-            {accountAddress.slice(0, 8)}...{accountAddress.slice(-8)}
-          </span>
+          <a 
+            href={`https://lora.algokit.io/testnet/account/${accountAddress}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontSize: '0.9em', fontFamily: 'monospace', color: 'var(--accepted)', textDecoration: 'underline', textUnderlineOffset: '4px' }}
+            title="View on Lora Explorer"
+          >
+            {accountAddress.slice(0, 8)}...{accountAddress.slice(-8)} ↗
+          </a>
           <button onClick={handleDisconnect} style={{ padding: '6px 12px', background: 'transparent', border: '1px solid var(--border)', borderRadius: '6px', cursor: 'pointer', color: 'var(--text-primary)' }}>
             Disconnect
           </button>

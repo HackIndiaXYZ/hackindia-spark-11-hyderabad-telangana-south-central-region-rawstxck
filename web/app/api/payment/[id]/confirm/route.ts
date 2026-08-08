@@ -5,7 +5,10 @@ import algosdk from "algosdk";
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const supabase = await createClient();
+    const supabaseAdmin = require('@supabase/supabase-js').createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
     const { id } = await params;
     const sessionId = id;
 
@@ -20,13 +23,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
 
     // 1. Look up the payment_sessions row by id. Reject if not pending or if expires_at has passed.
-    const { data: session } = await supabase
+    const { data: session, error: sessionError } = await supabaseAdmin
       .from("payment_sessions")
-      .select("*, profiles(id), wallet_links(algorand_address)")
+      .select("*")
       .eq("id", sessionId)
       .single();
 
     if (!session) {
+      console.error("[payment/confirm] Session not found or DB error:", sessionError);
       return NextResponse.json({ error: "Session not found" }, { status: 404 });
     }
 
@@ -35,13 +39,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
 
     if (new Date(session.expires_at) < new Date()) {
-      await supabase.from("payment_sessions").update({ status: "expired" }).eq("id", sessionId);
+      await supabaseAdmin.from("payment_sessions").update({ status: "expired" }).eq("id", sessionId);
       return NextResponse.json({ error: "Session has expired" }, { status: 400 });
     }
 
     // Get the user's linked active wallet. The join above might return an array if there are multiple,
     // so let's query wallet_links explicitly to ensure we get the active one.
-    const { data: walletLink } = await supabase
+    const { data: walletLink } = await supabaseAdmin
       .from("wallet_links")
       .select("algorand_address")
       .eq("user_id", session.user_id)
@@ -49,7 +53,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       .maybeSingle();
 
     if (!walletLink) {
-      await supabase.from("payment_sessions").update({ status: "failed" }).eq("id", sessionId);
+      await supabaseAdmin.from("payment_sessions").update({ status: "failed" }).eq("id", sessionId);
       return NextResponse.json({ error: "No active wallet link found for user" }, { status: 400 });
     }
 
@@ -71,7 +75,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       isMatch = false;
       failureReason = "Not a payment transaction";
     } else {
-      if (pTxn.amount !== session.amount_microalgos) {
+      if (Number(pTxn.amount) !== Number(session.amount_microalgos)) {
         isMatch = false;
         failureReason = `Amount mismatch (expected ${session.amount_microalgos}, got ${pTxn.amount})`;
       }
@@ -109,14 +113,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     // 4. Update status
     if (isMatch) {
-      await supabase
+      await supabaseAdmin
         .from("payment_sessions")
         .update({ status: "confirmed", algorand_tx_id: tx_id })
         .eq("id", sessionId);
 
       return NextResponse.json({ success: true, status: "confirmed" });
     } else {
-      await supabase
+      await supabaseAdmin
         .from("payment_sessions")
         .update({ status: "failed" })
         .eq("id", sessionId);

@@ -13,7 +13,6 @@ export async function recall(bankId: string): Promise<RecallContext> {
     const response = await client.recall(bankId, "recurring security findings and fix patterns");
     return { pastPatterns: response.results.map((r: any) => r.text) };
   } catch (err) {
-    console.log("  (Could not reach Hindsight — continuing without memory context.)");
     return { pastPatterns: [] };
   }
 }
@@ -38,6 +37,6 @@ export async function retain(event: RetainEvent): Promise<void> {
       }
     );
   } catch {
-    console.log("  (Could not write to Hindsight — this event won't be remembered.)");
+    // Fail silently
   }
 }

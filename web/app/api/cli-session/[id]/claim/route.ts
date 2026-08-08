@@ -28,12 +28,20 @@ export async function POST(req: NextRequest, props: { params: Promise<{ id: stri
     // 1. Fetch the session to verify it's still pending and not expired
     const { data: session, error: fetchError } = await supabaseAdmin
       .from('cli_sessions')
-      .select('status, expires_at')
+      .select('status, expires_at, user_id')
       .eq('id', id)
       .single();
 
     if (fetchError || !session) {
       return NextResponse.json({ error: 'Session not found' }, { status: 404 });
+    }
+
+    if (session.status === 'linked') {
+      if (session.user_id === user.id) {
+        // It was already linked to this user (e.g. by the OAuth callback)
+        return NextResponse.json({ success: true });
+      }
+      return NextResponse.json({ error: 'Session already claimed by another user' }, { status: 400 });
     }
 
     if (session.status !== 'pending') {

@@ -10,6 +10,8 @@ export interface Finding {
   severity: "critical" | "high" | "medium" | "low";
   originalLine: string;
   proposedFix: string;
+  extractedSecret?: string;
+  envVarName?: string;
 }
 
 export function buildSystemPrompt(pastPatterns: string[] = []): string {
@@ -82,6 +84,8 @@ export function parseFindingsResponse(raw: string): { findings: Finding[]; parse
         severity: f.severity,
         originalLine: f.originalLine,
         proposedFix: f.proposedFix,
+        extractedSecret: f.extractedSecret,
+        envVarName: f.envVarName,
       }));
 
     return { findings, parseFailed: false };

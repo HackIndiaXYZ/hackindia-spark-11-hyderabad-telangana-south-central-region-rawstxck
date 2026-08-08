@@ -1,5 +1,7 @@
 import { SimpleGit } from "simple-git";
 
+const EMPTY_TREE_HASH = "4b825dc642cb6eb9a060e54bf8d69288fbee4904";
+
 export interface FileDiff {
   file: string;
   addedLines: { lineNumber: number; content: string }[];
@@ -17,10 +19,11 @@ export async function getDiffSinceLastPush(git: SimpleGit): Promise<FileDiff[] |
   try {
     diffText = await git.diff(["@{u}..HEAD"]);
   } catch {
-    // No upstream configured yet (e.g. first push ever on a new branch) — fall back
-    // to staged changes, then to the full working diff against HEAD.
-    diffText = await git.diff(["--cached"]);
-    if (!diffText) diffText = await git.diff(["HEAD"]);
+    // No upstream configured yet (e.g. first push ever on a new branch) — diff against git's empty-tree object so the
+    // ENTIRE current HEAD is treated as new. The original fallback (--cached, then HEAD)
+    // only caught staged/uncommitted state and silently missed already-committed content
+    // on a first push.
+    diffText = await git.diff([EMPTY_TREE_HASH, "HEAD"]);
   }
 
   if (!diffText.trim()) return null;

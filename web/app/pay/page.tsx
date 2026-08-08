@@ -4,10 +4,9 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { PeraWalletConnect } from "@perawallet/connect";
 import algosdk from "algosdk";
+import { getPeraWallet } from "@/lib/pera";
 
 import styles from "../profile/page.module.css";
-
-const peraWallet = new PeraWalletConnect({ chainId: 416002 });
 
 export default function PayPage() {
   const searchParams = useSearchParams();
@@ -18,6 +17,7 @@ export default function PayPage() {
   const [accountAddress, setAccountAddress] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [txId, setTxId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!sessionId) {
@@ -49,6 +49,8 @@ export default function PayPage() {
   }, [sessionId]);
 
   useEffect(() => {
+    const peraWallet = getPeraWallet();
+    if (!peraWallet) return;
     peraWallet
       .reconnectSession()
       .then((accounts) => {
@@ -63,6 +65,8 @@ export default function PayPage() {
   }, []);
 
   const connectWallet = () => {
+    const peraWallet = getPeraWallet();
+    if (!peraWallet) return;
     peraWallet
       .connect()
       .then((accounts) => {
@@ -91,21 +95,24 @@ export default function PayPage() {
         note: new Uint8Array(Buffer.from(`securepush-payment:${sessionId}`)),
       });
 
+      const peraWallet = getPeraWallet();
+      if (!peraWallet) throw new Error("PeraWallet not initialized");
       const signedTxns = await peraWallet.signTransaction([[{ txn, signers: [accountAddress] }]]);
       
       const response = await algodClient.sendRawTransaction(signedTxns).do();
-      const txId = (response as any).txId || (response as any).txid;
+      const confirmedTxId = (response as any).txId || (response as any).txid;
+      setTxId(confirmedTxId);
 
       setStatus("confirming");
       
       // Wait for confirmation
-      await algosdk.waitForConfirmation(algodClient, txId, 4);
+      await algosdk.waitForConfirmation(algodClient, confirmedTxId, 4);
 
       // Tell backend to verify
       const res = await fetch(`/api/payment/${sessionId}/confirm`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tx_id: txId }),
+        body: JSON.stringify({ tx_id: confirmedTxId }),
       });
 
       const confirmData = await res.json();
@@ -128,7 +135,7 @@ export default function PayPage() {
       <>
 
         <main className={styles.shell}>
-          <div className={styles.card} style={{ textAlign: "center", padding: "40px" }}>Loading session...</div>
+          <div className={styles.profileCard} style={{ textAlign: "center", padding: "40px" }}>Loading session...</div>
         </main>
       </>
     );
@@ -139,9 +146,31 @@ export default function PayPage() {
       <>
 
         <main className={styles.shell}>
-          <div className={styles.card} style={{ textAlign: "center", padding: "40px" }}>
-            <h2 style={{ color: "var(--success)" }}>Payment Confirmed</h2>
-            <p>You can return to your terminal. The scan will proceed automatically.</p>
+          <div className={styles.profileCard} style={{ textAlign: "center", padding: "40px" }}>
+            <h2 style={{ color: "var(--accepted)", marginBottom: "16px" }}>Payment Confirmed</h2>
+            
+            <div style={{ background: "var(--surface-soft)", padding: "20px", borderRadius: "8px", marginBottom: "24px", display: "inline-block", textAlign: "left" }}>
+              <div style={{ fontSize: "0.9rem", color: "var(--text-muted)", marginBottom: "4px" }}>Amount Paid</div>
+              <div style={{ fontSize: "1.5rem", fontWeight: "bold", fontFamily: "var(--font-mono)", color: "var(--text-primary)", marginBottom: "16px" }}>
+                {sessionData ? sessionData.amount_microalgos / 1_000_000 : 0} ALGO
+              </div>
+              
+              {txId && (
+                <>
+                  <div style={{ fontSize: "0.9rem", color: "var(--text-muted)", marginBottom: "4px" }}>Transaction ID</div>
+                  <a 
+                    href={`https://testnet.explorer.perawallet.app/tx/${txId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ fontSize: "0.9rem", fontFamily: "var(--font-mono)", color: "var(--accepted)", textDecoration: "underline" }}
+                  >
+                    {txId.slice(0, 8)}...{txId.slice(-8)} ↗
+                  </a>
+                </>
+              )}
+            </div>
+
+            <p style={{ color: "var(--text-muted)" }}>You can return to your terminal. The scan will proceed automatically.</p>
           </div>
         </main>
       </>
@@ -153,7 +182,7 @@ export default function PayPage() {
       <>
 
         <main className={styles.shell}>
-          <div className={styles.card} style={{ textAlign: "center", padding: "40px" }}>
+          <div className={styles.profileCard} style={{ textAlign: "center", padding: "40px" }}>
             <h2 style={{ color: "var(--error)" }}>Payment Failed</h2>
             <p>{errorMsg || `Session status: ${status}`}</p>
           </div>
@@ -166,7 +195,7 @@ export default function PayPage() {
     <>
 
       <main className={styles.shell}>
-        <div className={styles.card} style={{ maxWidth: "500px", margin: "40px auto", textAlign: "center" }}>
+        <div className={styles.profileCard} style={{ maxWidth: "500px", margin: "40px auto", textAlign: "center" }}>
           <h2 style={{ marginBottom: "16px" }}>Approve Payment</h2>
           <p style={{ color: "var(--text-muted)", marginBottom: "24px" }}>
             Please approve the payment to proceed with the cloud scan.
@@ -198,7 +227,7 @@ export default function PayPage() {
               <button 
                 onClick={handleApprove}
                 disabled={isProcessing || status === "confirming"}
-                style={{ padding: '12px 24px', background: 'var(--primary)', color: 'var(--bg-default)', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', width: "100%" }}
+                style={{ padding: '12px 24px', background: 'var(--text-primary)', color: 'var(--bg)', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', width: "100%" }}
               >
                 {status === "confirming" ? "Confirming on-chain..." : isProcessing ? "Please sign in Pera..." : "Approve Payment"}
               </button>

@@ -10,15 +10,15 @@ export default function GlobalPaymentListener() {
   const supabase = createClient();
 
   useEffect(() => {
-    let peraWallet: PeraWalletConnect | null = null;
-    let userId: string | null = null;
+    let channel: any = null;
+    let mounted = true;
 
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      userId = user.id;
+      if (!user || !mounted) return;
+      const userId = user.id;
 
-      peraWallet = new PeraWalletConnect({ shouldShowSignTxnToast: false });
+      const peraWallet = new PeraWalletConnect({ shouldShowSignTxnToast: false });
       await peraWallet.reconnectSession().catch(() => {});
 
       // Initial check for pending payments
@@ -31,12 +31,14 @@ export default function GlobalPaymentListener() {
         .limit(1)
         .single();
 
-      if (initialPending) {
+      if (initialPending && mounted) {
         setPendingPayment(initialPending);
       }
 
+      if (!mounted) return;
+
       // Subscribe to new pending payments
-      const channel = supabase.channel('public:testnet_payments')
+      channel = supabase.channel(`testnet_payments_${userId}_${Date.now()}`)
         .on('postgres_changes', { 
           event: 'INSERT', 
           schema: 'public', 
@@ -48,13 +50,16 @@ export default function GlobalPaymentListener() {
           }
         })
         .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
     };
 
     init();
+
+    return () => {
+      mounted = false;
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
+    };
   }, []);
 
   useEffect(() => {

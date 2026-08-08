@@ -1,15 +1,15 @@
 :root {
   /* Colors - Minimal, Dark-First, High Contrast */
-  --bg: #090b0a;
-  --surface: #121413;
-  --surface-raised: #1a1d1c;
+  --bg: #0D0F0E;
+  --surface: #161917;
+  --surface-raised: #1D211E;
   --surface-soft: #202421;
   --border: #242926;
   --border-hover: #3a423d;
   
-  --text-primary: #f2f0ea;
-  --text-muted: #8b948e;
-  --text-faint: #565f5a;
+  --text-primary: #F2F0EA;
+  --text-muted: #8B948E;
+  --text-faint: #565F5A;
   
   /* Semantic Colors */
   --accepted: #3ecf8e;
@@ -31,6 +31,11 @@
   --code-string: #aab1a9;
   --code-var: #e3dfd4;
   --code-type: #8d978f;
+
+  /* Fonts */
+  --font-display: "Space Grotesk", sans-serif;
+  --font-body: "IBM Plex Sans", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
 
   /* Shadows & Elevations */
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
@@ -112,7 +117,7 @@ code,
   gap: 8px;
   height: 40px;
   padding: 0 16px;
-  border-radius: 6px;
+  border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text-primary);
@@ -149,9 +154,11 @@ code,
 /* Cards */
 .card {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: none;
   border-radius: 12px;
   padding: 24px;
+  display: flex;
+  flex-direction: column;
   transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   box-shadow: var(--shadow-sm);
 }

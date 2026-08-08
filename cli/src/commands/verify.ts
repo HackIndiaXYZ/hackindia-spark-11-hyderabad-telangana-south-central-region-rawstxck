@@ -8,7 +8,7 @@ import { runTests } from "../core/testRunner";
 import { loadIndex, saveIndex, updateIndex, lookupReferences } from "../core/referenceIndex";
 import { loadConfig } from "../config/schema";
 import { recall, retain } from "../memory/hindsight-client";
-import { getMutedRules } from "./review"; // Assuming review exports this, or we can fetch it. Wait, verify.ts might not have access to muted rules directly if it's local state. Let's just pass empty for now or read the file.
+
 
 async function reportScanToCloud(config: any, repoName: string, findings: any[], blocked: boolean, startTime: number) {
   const baseUrl = process.env.SECUREPUSH_API_URL || "http://localhost:3000";

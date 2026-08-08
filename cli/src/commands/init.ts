@@ -7,18 +7,8 @@ import { Provider, SecurePushConfig, DEFAULT_CONFIG, writeConfig } from "../conf
 import { buildIndex, saveIndex } from "../core/referenceIndex";
 import { getDiffSinceLastPush } from "../core/diff";
 
-// IMPORTANT: the hook cannot use a relative path assuming co-location with
-// .git/hooks/ — that directory lives inside the TARGET repo being protected,
-// not inside this CLI's own install location. This was a real bug found by
-// testing; must use an absolute path to wherever this CLI is actually running from.
-//
-// DECIDED: run via `tsx` directly against the .ts source rather than adding a
-// `tsc` build step. tsx avoids an extra build phase entirely, which matters
-// more than build-output cleanliness given the hackathon timeline.
-const CLI_ENTRY = path.resolve(__dirname, "..", "index.ts");
-
 function buildHookContent(): string {
-  return `#!/bin/bash\nnpx tsx "${CLI_ENTRY}" verify "$@" || exit 1\n`;
+  return `#!/bin/bash\nexec < /dev/tty\nnpx --yes @vishalsomaraju/secure-push verify "$@" || exit 1\n`;
 }
 
 async function detectTestCommand(repoRoot: string): Promise<string | null> {
@@ -54,7 +44,7 @@ export async function init() {
       { value: "groq", label: "Groq (fast, free tier)" },
       { value: "gemini", label: "Gemini (fast, free tier)" },
       { value: "ollama", label: "Ollama (local, fully private, no login)" },
-      { value: "cloud", label: "SecurePush Cloud (hosted, requires login)" },
+      { value: "cloud", label: "SecurePush Cloud (hosted, requires login & Pera Wallet)" },
     ],
   })) as Provider;
 
@@ -65,10 +55,14 @@ export async function init() {
 
   let bankIdOwner = "local";
   if (provider === "cloud") {
-    // Real build: trigger `securepush login` flow here (Prompt 14) or check for
-    // an existing linked session before proceeding. Stubbed for now — CLI-first
-    // build order means Cloud mode isn't wired end-to-end yet.
-    console.log(chalk.yellow("  SecurePush Cloud requires login — run `securepush login` first if you haven't."));
+    console.log(chalk.gray("\nSecurePush Cloud selected — opening browser to sign in..."));
+    const { runLoginFlow } = require("./login");
+    const { github_username, wallet_connected } = await runLoginFlow(repoRoot, true);
+    if (!github_username || !wallet_connected) {
+      console.log(chalk.red("Login and Wallet connection did not complete — Cloud mode requires both. Run `securepush init` again when ready."));
+      process.exit(1);
+    }
+    bankIdOwner = github_username;
   }
 
   // Test command — never silently skip the test-gate. Auto-detect from
@@ -80,10 +74,10 @@ export async function init() {
       placeholder: "npm test",
     });
     if (p.isCancel(manual)) {
-      p.cancel("A test command is required — SecurePush cannot guarantee its safety gate without one.");
+      p.cancel("Setup cancelled.");
       process.exit(1);
     }
-    testCommand = manual;
+    testCommand = manual ? String(manual) : "echo 'No tests configured'";
   }
 
   const bankId = `securepush-${bankIdOwner}-${repoName}`;
@@ -101,7 +95,7 @@ export async function init() {
   await fs.writeFile(hookPath, buildHookContent());
   await fs.chmod(hookPath, 0o755);
   console.log(chalk.green("✓ Installed pre-push hook."));
-  console.log(chalk.gray(`  Pointing at: ${CLI_ENTRY}`));
+  console.log(chalk.gray(`  Pointing at: npx @vishalsomaraju/secure-push verify`));
 
   // Baseline scan: without this, a repo with months of existing history never
   // gets its existing code checked — only future changes. Build the reference

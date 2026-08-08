@@ -4,7 +4,10 @@ import { buildSystemPrompt, buildDiffPrompt, parseFindingsResponse } from "@/lib
 
 export async function POST(req: Request) {
   try {
-    const supabase = await createClient();
+    const supabaseAdmin = require('@supabase/supabase-js').createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
     const { payment_session_id, files, pastPatterns = [] } = await req.json();
 
     if (!payment_session_id || !files) {
@@ -12,7 +15,7 @@ export async function POST(req: Request) {
     }
 
     // 1. Look up the payment_sessions row
-    const { data: session } = await supabase
+    const { data: session } = await supabaseAdmin
       .from("payment_sessions")
       .select("status, user_id")
       .eq("id", payment_session_id)
@@ -28,7 +31,7 @@ export async function POST(req: Request) {
 
     // Rate limit check: max 20 scans per hour per user
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-    const { count, error: countError } = await supabase
+    const { count, error: countError } = await supabaseAdmin
       .from("payment_sessions")
       .select("*", { count: "exact", head: true })
       .eq("user_id", session.user_id)
@@ -43,7 +46,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Rate limit exceeded: maximum 20 paid scans per hour." }, { status: 429 });
     }
     // 2. Mark the session status = 'consumed'
-    const { error: updateError } = await supabase
+    const { error: updateError } = await supabaseAdmin
       .from("payment_sessions")
       .update({ status: "consumed" })
       .eq("id", payment_session_id)

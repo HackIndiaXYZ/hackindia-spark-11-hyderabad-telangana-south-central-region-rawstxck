@@ -11,11 +11,15 @@ export async function GET(req: NextRequest, props: { params: Promise<{ id: strin
     }
 
     const supabase = await createClient();
+    const supabaseAdmin = require('@supabase/supabase-js').createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
 
     // The CLI can poll this. If it's unclaimed, user_id is null.
     // If it's claimed, RLS allows the linked user OR unlinked users to view it.
     // We only need the status and the github_username (if linked).
-    const { data: session, error } = await supabase
+    const { data: session, error } = await supabaseAdmin
       .from('cli_sessions')
       .select('status, user_id, profiles(github_username)')
       .eq('id', id)
@@ -26,19 +30,34 @@ export async function GET(req: NextRequest, props: { params: Promise<{ id: strin
     }
 
     // Update last_seen_at
-    await supabase.from('cli_sessions').update({ last_seen_at: new Date().toISOString() }).eq('id', id);
+    await supabaseAdmin.from('cli_sessions').update({ last_seen_at: new Date().toISOString() }).eq('id', id);
 
     let github_username = null;
+    let wallet_connected = false;
     if (session.status === 'linked' && session.profiles) {
       // Supabase join syntax returns either an array or an object depending on the relationship.
       // Since it's a many-to-one (session -> profile), it returns an object or array of objects.
       const profile = Array.isArray(session.profiles) ? session.profiles[0] : session.profiles;
       github_username = profile?.github_username;
+      
+      if (session.user_id) {
+        const { data: wallet } = await supabaseAdmin
+          .from('wallet_links')
+          .select('algorand_address')
+          .eq('user_id', session.user_id)
+          .eq('is_active', true)
+          .maybeSingle();
+          
+        if (wallet?.algorand_address) {
+          wallet_connected = true;
+        }
+      }
     }
 
     return NextResponse.json({
       status: session.status,
-      github_username
+      github_username,
+      wallet_connected
     });
   } catch (err: any) {
     console.error('Session poll error:', err);

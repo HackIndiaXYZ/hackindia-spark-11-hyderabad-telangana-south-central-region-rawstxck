@@ -24,7 +24,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields: bank_id, repo_name' }, { status: 400 });
     }
 
-    const supabase = await createClient();
+    const supabaseAdmin = require('@supabase/supabase-js').createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
 
     // 1. Look up owner_id from profiles by matching bank_id's embedded github_username
     // bank_id format: "securepush-{github_username}-{repo_name}"
@@ -34,7 +37,7 @@ export async function POST(req: NextRequest) {
     }
     const github_username = usernameMatch[1];
     
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('id')
       .eq('github_username', github_username)
@@ -47,7 +50,7 @@ export async function POST(req: NextRequest) {
     const owner_id = profile.id;
 
     // 2. Upsert repos config
-    const { data: repo, error: dbError } = await supabase
+    const { data: repo, error: dbError } = await supabaseAdmin
       .from('repos')
       .upsert({
         owner_id,
@@ -84,7 +87,7 @@ export async function POST(req: NextRequest) {
     const pushesBlocked = blocked ? 1 : 0;
     const pushesAllowed = blocked ? 0 : 1;
 
-    const { error: statsError } = await supabase.rpc('increment_repo_stats', {
+    const { error: statsError } = await supabaseAdmin.rpc('increment_repo_stats', {
       p_repo_id: repo.id,
       p_total_scans: 1,
       p_secrets_caught: secretsCaught,
@@ -101,7 +104,7 @@ export async function POST(req: NextRequest) {
     // 4. Upsert muted_rules
     if (muted && muted.length > 0) {
       for (const issue of muted) {
-        const { error: muteError } = await supabase
+        const { error: muteError } = await supabaseAdmin
           .from('muted_rules')
           .upsert({ repo_id: repo.id, issue_type: issue }, { onConflict: 'repo_id, issue_type' });
         
@@ -123,7 +126,7 @@ export async function POST(req: NextRequest) {
       attestScan(scanHash, passed)
         .then(async (txId) => {
           console.log(`Scan attested on-chain with TxID: ${txId}`);
-          await supabase
+          await supabaseAdmin
             .from('repos')
             .update({ attestation_tx_id: txId })
             .eq('id', repo.id);
